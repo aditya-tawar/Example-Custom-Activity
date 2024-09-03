@@ -13,18 +13,24 @@ define([
     ];
     var currentStep = steps[0].key;
 
+    console.log("Before windows is ready");
     $(window).ready(onRender);
-
+    console.log("Before initializing");
     connection.on('initActivity', initialize);
+    console.log("Before requesting tokens");
     connection.on('requestedTokens', onGetTokens);
+    console.log("Before requesting endpoints");
     connection.on('requestedEndpoints', onGetEndpoints);
+    console.log("After requesting endpoints");
 
     connection.on('clickedNext', save);
+    console.log("After clicking done");
     //connection.on('clickedBack', onClickedBack);
     //connection.on('gotoStep', onGotoStep);
 
     function onRender() {
         // JB will respond the first time 'ready' is called with 'initActivity'
+        console.log("Entered onRender function");
         connection.trigger('ready');
         connection.trigger('requestTokens');
         connection.trigger('requestEndpoints');
@@ -69,6 +75,7 @@ define([
             })
         });
 
+        console.log("Before changing the button to done");
         connection.trigger('updateButton', {
             button: 'next',
             text: 'done',
@@ -90,12 +97,14 @@ define([
 
     function save() {
 
+        console.log("Entered save function");
         var accountSid = $('#accountSid').val();
         var authToken = $('#authToken').val();
     //    var messagingService = $('#messagingService').val();
         var body = $('#messageBody').val();
-       // console.log("in the save option "+ body);
+        console.log("in the save option "+ body);
         
+        console.log("Before populating the payload");
         payload['arguments'].execute.inArguments = [{
             "accountSid": accountSid,
             "authToken": authToken,
@@ -107,7 +116,7 @@ define([
         payload['metaData'].isConfigured = true;
         console.log("Payload on SAVE function: "+JSON.stringify(payload));
         connection.trigger('updateActivity', payload);
-
+        console.log("after triggering the update activity");
     }                    
 
 });
