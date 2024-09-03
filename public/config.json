@@ -34,7 +34,7 @@
         }
     },
     "configurationArguments": {
-      "applicationExtensionKey": "ffe72536-a6f4-4634-b52f-06135f6b64e1",
+      "applicationExtensionKey": "d25ce173-94c2-4858-9e30-baa83fc79637",
        "save": {
            "url": "https://examplecustomact.onrender.com/journeybuilder/save/",
             "verb": "POST",
