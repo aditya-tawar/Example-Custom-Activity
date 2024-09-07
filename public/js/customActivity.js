@@ -119,14 +119,16 @@ define(['postmonger'], function (Postmonger) {
         brand,
       }
 
-      payload["arguments"].execute.inArguments = [
+      var params =
         {
           nPayload: nPayload,
-          TelegramID: "{{Event."+eventKey+".TelegramID}}",
-          name: "{{Event."+eventKey+".Name}}",
-          phone: "{{Event."+eventKey+".Phone}}",
+          TelegramID: '{{Event.' + eventKey + '.TelegramID}}',
+          name: '{{Event.' + eventKey + '.Name}}',
+          phone: '{{Event.' + eventKey + '.Phone}}'        
         }
-      ];
+      
+
+      payload["arguments"].execute.inArguments = [params];
 
       payload['metaData'].isConfigured = true
       console.log(JSON.stringify(payload['arguments'].execute.inArguments));
