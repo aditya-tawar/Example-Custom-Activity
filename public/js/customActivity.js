@@ -1,122 +1,141 @@
-define([
-    'postmonger'
-], function(
-    Postmonger
-) {
-    'use strict';
-    console.log("in the custom activity ");
-    var connection = new Postmonger.Session();
-    var payload = {};
-    var lastStepEnabled = false;
-    var steps = [ // initialize to the same value as what's set in config.json for consistency
-        { "label": "Create SMS Message", "key": "step1" }
-    ];
-    var currentStep = steps[0].key;
+define(['postmonger'], function (Postmonger) {
+  'use strict'
 
-    console.log("Before windows is ready");
-    $(window).ready(onRender);
-    console.log("Before initializing");
-    connection.on('initActivity', initialize);
-    console.log("Before requesting tokens");
-    connection.on('requestedTokens', onGetTokens);
-    console.log("Before requesting endpoints");
-    connection.on('requestedEndpoints', onGetEndpoints);
-    console.log("After requesting endpoints");
+  var connection = new Postmonger.Session()
+  var authTokens = {}
+  var payload = {}
+  var dataSourcesVar
 
-    connection.on('clickedNext', save);
-    console.log("After clicking done");
-    //connection.on('clickedBack', onClickedBack);
-    //connection.on('gotoStep', onGotoStep);
+  $(window).ready(onRender)
 
-    function onRender() {
-        // JB will respond the first time 'ready' is called with 'initActivity'
-        console.log("Entered onRender function");
-        connection.trigger('ready');
-        connection.trigger('requestTokens');
-        connection.trigger('requestEndpoints');
+  connection.on('initActivity', initialize)
+  connection.on('requestedTokens', onGetTokens)
+  connection.on('requestedEndpoints', onGetEndpoints)
+  connection.on('requestedInteraction', onRequestedInteraction)
+  connection.on('requestedTriggerEventDefinition', onRequestedTriggerEventDefinition)
+  connection.on('requestedDataSources', onRequestedDataSources)
+  connection.on('requestSchema', onRequestedSchema);
+
+  connection.on('clickedNext', save)
+
+  function onRender() {
+    // JB will respond the first time 'ready' is called with 'initActivity'
+    console.log("onRender Event Method calling...")
+    connection.trigger('ready')
+    connection.trigger('requestTokens')
+    connection.trigger('requestEndpoints')
+    connection.trigger('requestInteraction')
+    connection.trigger('requestTriggerEventDefinition')
+    connection.trigger('requestDataSources')
+    connection.trigger('requestSchema');
+  }   
+
+  function onRequestedDataSources(dataSources) {
+    console.log("onRequestedDataSources Event Method calling...")
+    console.log(dataSources)
+    dataSourcesVar = dataSources[0]
+  }
+
+  function onRequestedInteraction(interaction) {
+    console.log("onRequestedInteraction Event Method calling...")
+    console.log(interaction)
+
+  }
+
+  function onRequestedTriggerEventDefinition(eventDefinitionModel) {
+    console.log("onRequestedTriggerEventDefinition Event Method calling...")
+    console.log(eventDefinitionModel)
+    var eventKey = eventDefinitionModel['eventDefinitionKey'];
+    console.log("This is your event key:" + eventKey);
+    save(eventKey);
+  }
+
+  function onRequestedSchema(data) {
+
+    // add entry source attributes as inArgs
+    const schema = data['schema'];
+    console.log(schema.length)
+
+    for (var i = 0, l = schema.length; i < l; i++) {
+      var inArg = {};
+      let attr = schema[i].key;
+      let keyIndex = attr.lastIndexOf('.') + 1;
+      inArg[attr.substring(keyIndex)] = '{{' + attr + '}}';
+      payload['arguments'].execute.inArguments.push(inArg);
     }
+  }
 
   function initialize(data) {
-        console.log("Initializing data data: "+ JSON.stringify(data));
-        if (data) {
-            payload = data;
-        }    
+    console.log("initialize Event Method calling...")
+    console.log(JSON.stringify(data));
 
-        var hasInArguments = Boolean(
-            payload['arguments'] &&
-            payload['arguments'].execute &&
-            payload['arguments'].execute.inArguments &&
-            payload['arguments'].execute.inArguments.length > 0
-         );
-
-        var inArguments = hasInArguments ? payload['arguments'].execute.inArguments : {};
-
-        console.log('Has In arguments: '+JSON.stringify(inArguments));
-
-        $.each(inArguments, function (index, inArgument) {
-            $.each(inArgument, function (key, val) {
-
-                if (key === 'accountSid') {
-                    $('#accountSID').val(val);
-                }
-
-                if (key === 'authToken') {
-                    $('#authToken').val(val);
-                }
-
-                // if (key === 'messagingService') {
-                //     $('#messagingService').val(val);
-                // }
-
-                if (key === 'body') {
-                    $('#messageBody').val(val);
-                }                                                               
-
-            })
-        });
-
-        console.log("Before changing the button to done");
-        connection.trigger('updateButton', {
-            button: 'next',
-            text: 'done',
-            visible: true
-        });
-
+    if (data) {
+      payload = data
     }
 
-    function onGetTokens (tokens) {
-        // Response: tokens = { token: <legacy token>, fuel2token: <fuel api token> }
-        console.log("Tokens function: "+JSON.stringify(tokens));
-        //authTokens = tokens;
+    var hasInArguments = Boolean(
+      payload["arguments"] &&
+      payload["arguments"].execute &&
+      payload["arguments"].execute.inArguments &&
+      payload["arguments"].execute.inArguments.length > 0
+    );
+
+    var inArguments = hasInArguments ? payload["arguments"].execute.inArguments : {};
+
+    $('#message').val(inArguments.message)
+    $('#urlimg').val(inArguments.urlimg)
+    $(`#selectBrand option[value=${inArguments.brand}]`).prop('selected', true)
+
+    connection.trigger('updateButton', {
+      button: 'next',
+      text: 'done',
+      visible: true,
+    })
+  }
+
+  function onGetTokens(tokens) {
+    console.log("onGetTokens Event Method calling...")
+    console.log(tokens)
+    authTokens = tokens
+  }
+
+  function onGetEndpoints(endpoints) {
+    console.log("onGetEndpoints Event Method calling...")
+    console.log(endpoints)
+  }
+
+
+  function save() {
+    console.log("save Event Method calling...")
+    try {
+      // Get value from Iframe
+      const message = $('#message').val()
+      const urlimg = $('#urlimg').val()
+      const brand = $('#selectBrand option').filter(':selected').val()
+
+      let nPayload = {
+        message,
+        urlimg,
+        brand,
+      }
+
+      payload["arguments"].execute.inArguments = [
+        {
+          nPayload: nPayload,
+          TelegramID: "{{Event."+eventKey+".TelegramID}}",
+          name: "{{Event."+eventKey+".Name}}",
+          phone: "{{Event."+eventKey+".Phone}}",
+        }
+      ];
+
+      payload['metaData'].isConfigured = true
+      console.log(JSON.stringify(payload['arguments'].execute.inArguments));
+
+      connection.trigger('updateActivity', payload)
+
+    } catch (err) {
+      console.log("Error while calling save method of Custom Activity")
+      console.log(err)
     }
-
-    function onGetEndpoints (endpoints) {
-         //Response: endpoints = { restHost: <url> } i.e. "rest.s1.qa1.exacttarget.com"
-        console.log("Get End Points function: "+JSON.stringify(endpoints));
-    }
-
-    function save() {
-
-        console.log("Entered save function");
-        var accountSid = $('#accountSid').val();
-        var authToken = $('#authToken').val();
-    //    var messagingService = $('#messagingService').val();
-        var body = $('#messageBody').val();
-        console.log("in the save option "+ body);
-        
-        console.log("Before populating the payload");
-        payload['arguments'].execute.inArguments = [{
-            "accountSid": accountSid,
-            "authToken": authToken,
-    //        "messagingService": messagingService,
-            "body": body,
-            "to": "{{Contact.Attribute.telegramActivity.chatid}}" ,//<----This should map to your data extension name and phone number column
-           
-        }];       
-        payload['metaData'].isConfigured = true;
-        console.log("Payload on SAVE function: "+JSON.stringify(payload));
-        connection.trigger('updateActivity', payload);
-        console.log("after triggering the update activity");
-    }                    
-
-});
+  }
+})

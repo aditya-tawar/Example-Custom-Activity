@@ -1,7 +1,6 @@
 'use strict';
 
 // Deps
-console.log("in the index file ");
 var activity = require('./activity');
 
 /*
@@ -23,7 +22,6 @@ exports.index = function(req, res){
 
 exports.login = function( req, res ) {
     console.log( 'req.body: ', req.body );
-    console.log('hello login function called');
     res.redirect( '/' );
 };
 
