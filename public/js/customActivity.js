@@ -119,16 +119,24 @@ define(['postmonger'], function (Postmonger) {
         brand,
       }
 
-      var params =
-        {
-          nPayload: nPayload,
-          TelegramID: '{{Event.' + eventKey + '.TelegramID}}',
-          name: '{{Event.' + eventKey + '.Name}}',
-          phone: '{{Event.' + eventKey + '.Phone}}'        
-        }
+      // var params =
+      //   {
+      //     nPayload: nPayload,
+      //     TelegramID: '{{Event.' + eventKey + '.TelegramID}}',
+      //     name: '{{Event.' + eventKey + '.Name}}',
+      //     phone: '{{Event.' + eventKey + '.Phone}}'        
+      //   }
       
 
-      payload["arguments"].execute.inArguments = [params];
+      // payload["arguments"].execute.inArguments = [params];
+      payload["arguments"].execute.inArguments = [
+            {
+              nPayload: nPayload,
+              TelegramID: '{{Event.TContact_API.TelegramID}}',
+              name: '{{Event.TContact_API.Name}}',
+              phone: '{{Event.TContact_API.Phone}}'        
+            }
+      ];
 
       payload['metaData'].isConfigured = true
       console.log(JSON.stringify(payload['arguments'].execute.inArguments));
