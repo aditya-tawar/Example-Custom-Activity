@@ -1,3 +1,5 @@
+// 
+
 define(['postmonger'], function (Postmonger) {
   'use strict'
 
@@ -5,6 +7,7 @@ define(['postmonger'], function (Postmonger) {
   var authTokens = {}
   var payload = {}
   var dataSourcesVar
+  var eventKey  // Declare eventKey as a global variable
 
   $(window).ready(onRender)
 
@@ -19,7 +22,6 @@ define(['postmonger'], function (Postmonger) {
   connection.on('clickedNext', save)
 
   function onRender() {
-    // JB will respond the first time 'ready' is called with 'initActivity'
     console.log("onRender Event Method calling...")
     connection.trigger('ready')
     connection.trigger('requestTokens')
@@ -40,23 +42,17 @@ define(['postmonger'], function (Postmonger) {
   function onRequestedInteraction(interaction) {
     console.log("onRequestedInteraction Event Method calling...")
     console.log(interaction)
-
   }
 
   function onRequestedTriggerEventDefinition(eventDefinitionModel) {
     console.log("onRequestedTriggerEventDefinition Event Method calling...")
     console.log(eventDefinitionModel)
-    var eventKey = eventDefinitionModel.eventDefinitionKey;
+
+    eventKey = eventDefinitionModel.eventDefinitionKey;  // Assign eventKey globally
     console.log("This is your event key:" + eventKey);
-    console.log(eventKey.attr);
-    console.log(eventKey.TelegramID);
-    console.log(eventKey.arguments);
-    //save(eventKey);
   }
 
   function onRequestedSchema(data) {
-
-    // add entry source attributes as inArgs
     const schema = data['schema'];
     console.log(schema.length)
 
@@ -108,7 +104,6 @@ define(['postmonger'], function (Postmonger) {
     console.log(endpoints)
   }
 
-
   function save() {
     console.log("save Event Method calling...")
     try {
@@ -123,6 +118,11 @@ define(['postmonger'], function (Postmonger) {
         brand,
       }
 
+      // Ensure eventKey is defined before using it
+      if (!eventKey) {
+        throw new Error("eventKey is undefined");
+      }
+
       var params =
         {
           nPayload: nPayload,
@@ -130,18 +130,8 @@ define(['postmonger'], function (Postmonger) {
           name: '{{Event.' + eventKey + '.Name}}',
           phone: '{{Event.' + eventKey + '.Phone}}'        
         }
-      
 
       payload["arguments"].execute.inArguments = [params];
-      // payload["arguments"].execute.inArguments = [
-      //       {
-      //         nPayload: nPayload,
-      //         TelegramID: '{{Event.TContact_API.TelegramID}}',
-      //         name: '{{Event.TContact_API.Name}}',
-      //         phone: '{{Event.TContact_API.Phone}}'        
-      //       }
-      // ];
-
       payload['metaData'].isConfigured = true
       console.log(JSON.stringify(payload['arguments'].execute.inArguments));
 
