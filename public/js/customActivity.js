@@ -46,9 +46,12 @@ define(['postmonger'], function (Postmonger) {
   function onRequestedTriggerEventDefinition(eventDefinitionModel) {
     console.log("onRequestedTriggerEventDefinition Event Method calling...")
     console.log(eventDefinitionModel)
-    var eventKey = eventDefinitionModel['eventDefinitionKey'];
+    var eventKey = eventDefinitionModel.eventDefinitionKey;
     console.log("This is your event key:" + eventKey);
-    save(eventKey);
+    console.log(eventKey.attr);
+    console.log(eventKey.TelegramID);
+    console.log(eventKey.arguments);
+    //save(eventKey);
   }
 
   function onRequestedSchema(data) {
