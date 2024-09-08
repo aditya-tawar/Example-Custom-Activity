@@ -3,6 +3,7 @@ require('dotenv').config()
 module.exports = function configJSON(req) {
   return {
     workflowApiVersion: '1.1',
+    key: "323055e5-0ce2-405c-8923-34af6fec1e83",
     metaData: {
       icon: 'images/icon.png',
       iconSmall: 'images/icon.png',
@@ -36,6 +37,7 @@ module.exports = function configJSON(req) {
       },
     },
     configurationArguments: {
+      applicationExtensionKey: "323055e5-0ce2-405c-8923-34af6fec1e83",
       save: {
         url: `https://examplecustomact.onrender.com/journeybuilder/save`,
         verb: 'POST',
