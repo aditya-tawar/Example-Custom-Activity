@@ -5,7 +5,8 @@ const JWT = require(Path.join(__dirname, '..', 'lib', 'jwtDecoder.js'))
 const CryptoJS = require('crypto-js')
 require('dotenv').config()
 const { client } = require('./Api/mcApi')
-const { TelegramRequest } = require('./Api/telegramApi')
+const { TelegramRequest } = require('./Api/telegramApi');
+const { Console } = require('console');
 
 exports.logExecuteData = [];
 
@@ -51,6 +52,7 @@ function logData(req) {
 /** POST Handler for /execute/ route of Activity.*/
 exports.execute = function (req, res) {
 
+  console.log("IN EXECUTE");
   console.log('req', req === undefined ? 'empty' : 'has');
   console.log('req.body', req.body);
   const journeyId = req.body.journeyId
@@ -348,15 +350,18 @@ exports.execute = function (req, res) {
 /** POST Handler for /publish/ route of Activity.*/
 exports.publish = function (req, res) {
   logData(req);
+
+  console.log("IN PUBLISH");
   
   const { journeyId, activityId } = req.body;
-  
+  console.log(req.body);
   // Simulate publishing process
   // Example: validate if activityId and journeyId are present and correct
   if (!journeyId || !activityId) {
     return res.status(400).send('Missing required fields.');
   }
   
+  console.log("AFTER PUBLISHNG");
   // Additional logic to handle publishing, e.g., update database status, notify services, etc.
   
   res.status(200).send('Activity published successfully');
@@ -366,13 +371,18 @@ exports.publish = function (req, res) {
 /** POST Handler for /validate/ route of Activity.*/
 exports.validate = function (req, res) {
   logData(req);
+  console.log("IN validate");
+  console.log(req);
 
   const { inArguments } = req.body;
 
+  console.log(req.body);
   // Example validation: Check if inArguments are provided
   if (!inArguments || !Array.isArray(inArguments) || inArguments.length === 0) {
     return res.status(400).send('Invalid inArguments.');
   }
+
+  console.log("After validation");
 
   // Additional validation logic could go here (e.g., check for required fields, format validation)
 
@@ -381,6 +391,7 @@ exports.validate = function (req, res) {
 
 /** POST Handler for / route of Activity (this is the edit route).*/
 exports.edit = function (req, res) {
+  console.log("WHILE EDITING");
   logData(req);
   
   const { journeyId, activityId, newDetails } = req.body;
@@ -403,6 +414,8 @@ exports.edit = function (req, res) {
 
 /** POST Handler for /save/ route of Activity.*/
 exports.save = function (req, res) {
+
+  Console.log("IN SAVING");
   logData(req);
   
   const { journeyId, activityId, currentDetails } = req.body;
