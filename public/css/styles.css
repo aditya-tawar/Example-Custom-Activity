@@ -2,6 +2,11 @@ body {
     padding: 20px;
     margin: 0;
 }
-html {
-    background: #ffffff;
+
+.step {
+    display: none;
+}
+
+#step1 {
+    display: block;
 }
